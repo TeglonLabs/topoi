@@ -1,115 +1,145 @@
-import asyncio
+"""
+Topos MCP Server - Core Implementation
 
+Feature DAG (A → B means A must be implemented before B):
+
+Core (implemented)
+├── Basic Behaviors
+└── State Management
+
+Modal Logic
+├── Modal Operators (□,◇) → World Accessibility
+├── World Accessibility → Formula Validation
+└── Formula Validation → Behavioral Reasoning
+
+Probability
+├── JAX Integration → Transition Matrices
+└── Transition Matrices → Local Sections
+
+Category Theory
+├── Sheaf Structure → Functorial Maps
+├── String Diagrams → Categorical Composition
+└── Functorial Maps → Behavioral Homology
+
+Analysis
+├── Chain Complexes → Boundary Maps
+├── Boundary Maps → Homology Groups
+└── Local Sections → Chain Complexes
+
+Each feature increment adds capabilities:
+- Modal Logic: Formal behavioral verification
+- Probability: Quantitative behavioral analysis
+- Category Theory: Structural relationships
+- Analysis: Behavioral invariants
+"""
+
+import asyncio
+from typing import Dict, List, Optional
 from mcp.server.models import InitializationOptions
 import mcp.types as types
 from mcp.server import NotificationOptions, Server
-from pydantic import AnyUrl
+from pydantic import AnyUrl, BaseModel
 import mcp.server.stdio
 
-# Store notes as a simple key-value dict to demonstrate state management
-notes: dict[str, str] = {}
+class Behavior(BaseModel):
+    """Core behavior representation"""
+    id: str
+    name: str
+    description: Optional[str] = None
 
+class ToposState(BaseModel):
+    """Core state representation"""
+    id: str
+    behaviors: List[str]
+
+# State management
+behaviors: Dict[str, Behavior] = {}
+states: Dict[str, ToposState] = {}
+
+# Initialize server with topos capabilities
+server = Server("topos-mcp")
+
+# Initialize server
 server = Server("topos-mcp")
 
 @server.list_resources()
 async def handle_list_resources() -> list[types.Resource]:
-    """
-    List available note resources.
-    Each note is exposed as a resource with a custom note:// URI scheme.
-    """
-    return [
-        types.Resource(
-            uri=AnyUrl(f"note://internal/{name}"),
-            name=f"Note: {name}",
-            description=f"A simple note named {name}",
-            mimeType="text/plain",
+    """List available behaviors and states"""
+    resources = []
+    
+    for behavior_id, behavior in behaviors.items():
+        resources.append(
+            types.Resource(
+                uri=AnyUrl(f"topos://behavior/{behavior_id}"),
+                name=behavior.name,
+                description=behavior.description,
+                mimeType="application/json"
+            )
         )
-        for name in notes
-    ]
+    
+    for state_id, state in states.items():
+        resources.append(
+            types.Resource(
+                uri=AnyUrl(f"topos://state/{state_id}"),
+                name=f"State {state_id}",
+                description=f"State with {len(state.behaviors)} behaviors",
+                mimeType="application/json"
+            )
+        )
+    
+    return resources
 
 @server.read_resource()
 async def handle_read_resource(uri: AnyUrl) -> str:
-    """
-    Read a specific note's content by its URI.
-    The note name is extracted from the URI host component.
-    """
-    if uri.scheme != "note":
+    """Read behavior or state content"""
+    if uri.scheme != "topos":
         raise ValueError(f"Unsupported URI scheme: {uri.scheme}")
 
-    name = uri.path
-    if name is not None:
-        name = name.lstrip("/")
-        return notes[name]
-    raise ValueError(f"Note not found: {name}")
-
-@server.list_prompts()
-async def handle_list_prompts() -> list[types.Prompt]:
-    """
-    List available prompts.
-    Each prompt can have optional arguments to customize its behavior.
-    """
-    return [
-        types.Prompt(
-            name="summarize-notes",
-            description="Creates a summary of all notes",
-            arguments=[
-                types.PromptArgument(
-                    name="style",
-                    description="Style of the summary (brief/detailed)",
-                    required=False,
-                )
-            ],
-        )
-    ]
-
-@server.get_prompt()
-async def handle_get_prompt(
-    name: str, arguments: dict[str, str] | None
-) -> types.GetPromptResult:
-    """
-    Generate a prompt by combining arguments with server state.
-    The prompt includes all current notes and can be customized via arguments.
-    """
-    if name != "summarize-notes":
-        raise ValueError(f"Unknown prompt: {name}")
-
-    style = (arguments or {}).get("style", "brief")
-    detail_prompt = " Give extensive details." if style == "detailed" else ""
-
-    return types.GetPromptResult(
-        description="Summarize the current notes",
-        messages=[
-            types.PromptMessage(
-                role="user",
-                content=types.TextContent(
-                    type="text",
-                    text=f"Here are the current notes to summarize:{detail_prompt}\n\n"
-                    + "\n".join(
-                        f"- {name}: {content}"
-                        for name, content in notes.items()
-                    ),
-                ),
-            )
-        ],
-    )
+    path = uri.path.lstrip("/") if uri.path else ""
+    parts = path.split("/")
+    
+    if len(parts) != 2:
+        raise ValueError(f"Invalid resource path: {path}")
+        
+    resource_type, resource_id = parts
+    
+    if resource_type == "behavior" and resource_id in behaviors:
+        return behaviors[resource_id].json()
+    elif resource_type == "state" and resource_id in states:
+        return states[resource_id].json()
+            
+    raise ValueError(f"Resource not found: {path}")
 
 @server.list_tools()
 async def handle_list_tools() -> list[types.Tool]:
-    """
-    List available tools.
-    Each tool specifies its arguments using JSON Schema validation.
-    """
+    """List available tools"""
     return [
         types.Tool(
-            name="add-note",
-            description="Add a new note",
+            name="add-behavior",
+            description="Add a new behavior",
             inputSchema={
                 "type": "object",
                 "properties": {
+                    "id": {"type": "string"},
                     "name": {"type": "string"},
-                    "content": {"type": "string"},
+                    "description": {"type": "string"}
                 },
-                "required": ["name", "content"],
+                "required": ["id", "name"],
+            },
+        ),
+        types.Tool(
+            name="add-state",
+            description="Add a new state",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "behaviors": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    }
+                },
+                "required": ["id", "behaviors"],
             },
         )
     ]
@@ -117,38 +147,36 @@ async def handle_list_tools() -> list[types.Tool]:
 @server.call_tool()
 async def handle_call_tool(
     name: str, arguments: dict | None
-) -> list[types.TextContent | types.ImageContent | types.EmbeddedResource]:
-    """
-    Handle tool execution requests.
-    Tools can modify server state and notify clients of changes.
-    """
-    if name != "add-note":
-        raise ValueError(f"Unknown tool: {name}")
-
+) -> list[types.TextContent]:
+    """Handle tool execution requests"""
     if not arguments:
         raise ValueError("Missing arguments")
 
-    note_name = arguments.get("name")
-    content = arguments.get("content")
-
-    if not note_name or not content:
-        raise ValueError("Missing name or content")
-
-    # Update server state
-    notes[note_name] = content
-
-    # Notify clients that resources have changed
-    await server.request_context.session.send_resource_list_changed()
-
-    return [
-        types.TextContent(
-            type="text",
-            text=f"Added note '{note_name}' with content: {content}",
+    if name == "add-behavior":
+        behavior = Behavior(
+            id=arguments["id"],
+            name=arguments["name"],
+            description=arguments.get("description")
         )
-    ]
+        behaviors[behavior.id] = behavior
+        response = f"Added behavior {behavior.name}"
+    
+    elif name == "add-state":
+        state = ToposState(
+            id=arguments["id"],
+            behaviors=arguments["behaviors"]
+        )
+        states[state.id] = state
+        response = f"Added state with {len(state.behaviors)} behaviors"
+    
+    else:
+        raise ValueError(f"Unknown tool: {name}")
+
+    await server.request_context.session.send_resource_list_changed()
+    return [types.TextContent(type="text", text=response)]
 
 async def main():
-    # Run the server using stdin/stdout streams
+    """Run the server"""
     async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
         await server.run(
             read_stream,
