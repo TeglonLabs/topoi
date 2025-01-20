@@ -1,30 +1,40 @@
 [project]
-name = "topos-mcp"
-version = "0.0.0"
-description = "_"
-readme = "README.md"
-requires-python = ">=3.13"
+name = "_"
+version = "0.1.0"
+description = "A postmodern exploration of concept space through entropy tensors and random walks"
+authors = [
+    {name = "_ Contributors"}
+]
 dependencies = [
-    "mcp>=1.2.0",
-    "mcp-sdk>=0.1.0",
-    "pydantic>=2.0.0",
-    "prompt_toolkit>=3.0.0",
-    "rich>=13.0.0"
+    "numpy>=1.24.0",
+    "rich>=13.0.0",
+    "textual>=0.27.0",
+    "discopy>=0.5.0",
 ]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.0.0",
-    "mypy>=1.0.0"
-]
-[[project.authors]]
-name = "barton"
-email = "barton@vibes.lol"
+requires-python = ">=3.9"
 
 [build-system]
-requires = [ "hatchling",]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-[project.scripts]
-topos = "topos_mcp.__main__:main"
-topos-client = "topos_mcp.client:entry_point"
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "ruff>=0.1.6",
+    "pytest>=7.4.3",
+    "pytest-cov>=4.1.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+
+[tool.pytest.ini_options]
+addopts = "-ra -q --cov=_"
+testpaths = ["tests"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/_"]

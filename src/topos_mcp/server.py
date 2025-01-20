@@ -34,23 +34,22 @@ Each feature increment adds capabilities:
 """
 
 import asyncio
-from typing import Dict, List, Optional
-from mcp.server.models import InitializationOptions
-import mcp.types as types
+from typing import Dict, List, Optional, Any
+from pydantic import BaseModel, AnyUrl, Field
 from mcp.server import NotificationOptions, Server
-from pydantic import AnyUrl, BaseModel
-import mcp.server.stdio
+from mcp.types import Resource, Tool, TextContent
+from functools import partial as curry
 
 class Behavior(BaseModel):
     """Core behavior representation"""
-    id: str
-    name: str
-    description: Optional[str] = None
+    id: str = Field(..., description="Unique identifier for the behavior")
+    name: str = Field(..., description="Name of the behavior")
+    description: Optional[str] = Field(None, description="Description of the behavior")
 
 class ToposState(BaseModel):
     """Core state representation"""
-    id: str
-    behaviors: List[str]
+    id: str = Field(..., description="Unique identifier for the state")
+    behaviors: List[str] = Field(..., description="List of behavior IDs associated with the state")
 
 # State management
 behaviors: Dict[str, Behavior] = {}
@@ -59,36 +58,30 @@ states: Dict[str, ToposState] = {}
 # Initialize server with topos capabilities
 server = Server("topos-mcp")
 
-# Initialize server
-server = Server("topos-mcp")
-
+@curry
 @server.list_resources()
-async def handle_list_resources() -> list[types.Resource]:
+async def handle_list_resources() -> List[Resource]:
     """List available behaviors and states"""
-    resources = []
-    
-    for behavior_id, behavior in behaviors.items():
-        resources.append(
-            types.Resource(
-                uri=AnyUrl(f"topos://behavior/{behavior_id}"),
-                name=behavior.name,
-                description=behavior.description,
-                mimeType="application/json"
-            )
+    resources = [
+        Resource(
+            uri=AnyUrl(f"topos://behavior/{behavior.id}"),
+            name=behavior.name,
+            description=behavior.description,
+            mimeType="application/json"
         )
-    
-    for state_id, state in states.items():
-        resources.append(
-            types.Resource(
-                uri=AnyUrl(f"topos://state/{state_id}"),
-                name=f"State {state_id}",
-                description=f"State with {len(state.behaviors)} behaviors",
-                mimeType="application/json"
-            )
+        for behavior in behaviors.values()
+    ] + [
+        Resource(
+            uri=AnyUrl(f"topos://state/{state.id}"),
+            name=f"State {state.id}",
+            description=f"State with {len(state.behaviors)} behaviors",
+            mimeType="application/json"
         )
-    
+        for state in states.values()
+    ]
     return resources
 
+@curry
 @server.read_resource()
 async def handle_read_resource(uri: AnyUrl) -> str:
     """Read behavior or state content"""
@@ -96,25 +89,21 @@ async def handle_read_resource(uri: AnyUrl) -> str:
         raise ValueError(f"Unsupported URI scheme: {uri.scheme}")
 
     path = uri.path.lstrip("/") if uri.path else ""
-    parts = path.split("/")
-    
-    if len(parts) != 2:
-        raise ValueError(f"Invalid resource path: {path}")
-        
-    resource_type, resource_id = parts
-    
+    resource_type, resource_id = path.split("/", 1) if "/" in path else (path, "")
+
     if resource_type == "behavior" and resource_id in behaviors:
         return behaviors[resource_id].json()
     elif resource_type == "state" and resource_id in states:
         return states[resource_id].json()
-            
-    raise ValueError(f"Resource not found: {path}")
+    else:
+        raise ValueError(f"Resource not found: {path}")
 
+@curry
 @server.list_tools()
-async def handle_list_tools() -> list[types.Tool]:
+async def handle_list_tools() -> List[Tool]:
     """List available tools"""
     return [
-        types.Tool(
+        Tool(
             name="add-behavior",
             description="Add a new behavior",
             inputSchema={
@@ -127,7 +116,7 @@ async def handle_list_tools() -> list[types.Tool]:
                 "required": ["id", "name"],
             },
         ),
-        types.Tool(
+        Tool(
             name="add-state",
             description="Add a new state",
             inputSchema={
@@ -144,10 +133,9 @@ async def handle_list_tools() -> list[types.Tool]:
         )
     ]
 
+@curry
 @server.call_tool()
-async def handle_call_tool(
-    name: str, arguments: dict | None
-) -> list[types.TextContent]:
+async def handle_call_tool(name: str, arguments: Optional[dict]) -> List[TextContent]:
     """Handle tool execution requests"""
     if not arguments:
         raise ValueError("Missing arguments")
@@ -173,7 +161,7 @@ async def handle_call_tool(
         raise ValueError(f"Unknown tool: {name}")
 
     await server.request_context.session.send_resource_list_changed()
-    return [types.TextContent(type="text", text=response)]
+    return [TextContent(type="text", text=response)]
 
 async def main():
     """Run the server"""
@@ -181,12 +169,15 @@ async def main():
         await server.run(
             read_stream,
             write_stream,
-            InitializationOptions(
+            initializationOptions=InitializationOptions(
                 server_name="topos-mcp",
-                server_version="0.0.0",
+                server_version="0.1.0",
                 capabilities=server.get_capabilities(
                     notification_options=NotificationOptions(),
                     experimental_capabilities={},
                 ),
             ),
         )
+
+if __name__ == "__main__":
+    asyncio.run(main())

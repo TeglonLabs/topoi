@@ -1,0 +1,78 @@
+# This is an example ".prompt" file demonstrating advanced features and Topos MCP context
+# Each section below shows different capabilities while preserving key educational elements
+
+# === YAML Configuration Section ===
+# The YAML header allows setting various options to control prompt behavior
+name: Topos MCP Development
+description: Advanced prompt template for Topos MCP development tasks
+temperature: 0.7
+model: gpt-4
+tags: 
+  - mcp
+  - development
+  - python
+---
+
+# === Context References ===
+# The prompt can reference various context sources:
+
+# 1. Project Files (automatically included)
+@README.md                    # Core project documentation
+@pyproject.toml              # Project configuration
+@src/topos_mcp/server.py     # Server implementation
+@src/topos_mcp/client.py     # Client implementation
+
+# 2. System Context
+@os                          # Operating system information
+@repo-map                    # Repository structure
+@currentFile                 # Current file being edited
+
+# 3. Runtime Information
+@runtimes/just-world/interpreter.py  # Runtime interpreter
+
+# === Template Structure ===
+# Below demonstrates the recommended structure for Topos MCP development prompts
+
+I am working with the Topos MCP project which implements a Model Context Protocol server.
+The project supports multiple runtimes including Python and WebAssembly.
+
+Key Development Context:
+1. Python is the default runtime, managed with uv package manager
+2. System dependencies are handled through flox
+3. Development automation uses just commands
+4. The project follows strict typing and linting standards
+
+Development Task Requirements:
+1. Follow the project's code style and standards
+2. Ensure compatibility with both Python and WASM runtimes
+3. Include appropriate tests and documentation
+4. Consider performance and security implications
+
+Please help me with the following task while adhering to these guidelines:
+
+[User's task description goes here]
+
+# === Advanced Features ===
+# This template demonstrates several advanced capabilities:
+
+# 1. Dynamic File References
+# You can reference files relative to the workspace root:
+  @tests/test_server.py
+  @runtimes/wasm/
+
+# 2. URL Integration
+# External resources can be referenced:
+  'https://docs.continue.dev/features/prompt-files'
+
+# 3. Context Providers
+# Built-in context providers enhance prompts:
+  @currentFile
+  @repo-map
+
+# === Original Template Reference ===
+# Below is the original example template for reference:
+# A prompt file consists of two parts:
+# 1. Everything above the "---" is YAML. Here you can set "temperature", "description", and other options
+# 2. Everything below the "---" is the prompt body
+
+# To learn more, see the full .prompt file reference: https://docs.continue.dev/features/prompt-files

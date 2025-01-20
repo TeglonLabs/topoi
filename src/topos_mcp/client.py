@@ -9,9 +9,8 @@ import json
 import sys
 from typing import Dict, List, Optional, Any
 from contextlib import AsyncExitStack
-from mcp import Client as MCPBaseClient
+from mcp.client.stdio import stdio_client as MCPBaseClient
 from mcp.client.stdio import stdio_client
-from mcp.client.models import StdioServerParameters, ClientSession
 from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.application import Application
@@ -55,7 +54,8 @@ class MCPClient:
         # Command completions
         self.command_completer = WordCompleter([
             'call', 'list', 'help', 'quit',
-            'tools', 'resources', 'prompts'
+            'tools', 'resources', 'prompts',
+            'optimize', 'analyze', 'simulate'
         ], ignore_case=True)
         
         # Style definitions
@@ -262,7 +262,21 @@ class MCPClient:
                         )
                     self.console.print(table)
                 
-            elif cmd == "help":
+            elif cmd == "optimize":
+                # New command for optimization
+                self.console.print("[cyan]Optimizing interactions...[/cyan]")
+                # Implement optimization logic here
+
+            elif cmd == "analyze":
+                # New command for analysis
+                self.console.print("[cyan]Analyzing data...[/cyan]")
+                # Implement analysis logic here
+
+            elif cmd == "simulate":
+                # New command for simulation
+                self.console.print("[cyan]Simulating scenarios...[/cyan]")
+                # Implement simulation logic here
+
                 help_text = """
                 [bold cyan]Available Commands[/bold cyan]
                 
@@ -390,4 +404,4 @@ def entry_point():
     asyncio.run(main())
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

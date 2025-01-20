@@ -1,0 +1,74 @@
+{:bridge-spec
+ {:version "0.1.0"
+  :protocols {:llm {:type :generator
+                   :format :stream
+                   :chunks true}
+             :babashka {:type :process
+                       :format :edn}
+             :nats {:type :pubsub
+                   :format :json}}
+  
+  :transformations
+  [{:from :llm
+    :to :babashka
+    :via :edn
+    :validate true}
+   {:from :babashka
+    :to :nats
+    :via :json
+    :validate true}]
+  
+  :state-machine
+  {:states
+   {:init {:transitions [{:to :processing
+                         :when :llm-ready}]}
+    :processing {:transitions [{:to :transforming
+                              :when :chunk-received}
+                             {:to :error
+                              :when :llm-error}]}
+    :transforming {:transitions [{:to :processing
+                                :when :chunk-processed}
+                               {:to :error
+                                :when :transform-error}]}
+    :error {:transitions [{:to :init
+                          :when :reset}]}}
+   
+   :actions
+   {:llm-ready {:fn process-llm-stream
+                :args [:prompt :system-prompt]}
+    :chunk-received {:fn send-to-babashka
+                    :args [:chunk]}
+    :chunk-processed {:fn log-transaction
+                     :args [:chunk :result]}
+    :reset {:fn initialize-bridge
+            :args []}}}
+  
+  :generators
+  {:llm-stream {:type :async-generator
+                :protocol :llm
+                :state :processing}
+   :babashka-process {:type :subprocess
+                     :protocol :babashka
+                     :state :transforming}}
+  
+  :error-handling
+  {:retry {:max-attempts 3
+          :backoff {:type :exponential
+                   :base 2
+                   :max-delay 30}}
+   :recovery {:strategy :transaction-log
+             :persist true}}
+  
+  :monitoring
+  {:metrics [:latency :throughput :error-rate]
+   :logging {:level :info
+            :format :edn
+            :outputs [:file :stdout]}}}
+ 
+ :runtime
+ {:environments {:dev {:log-level :debug
+                      :validate true}
+                :prod {:log-level :info
+                      :validate false}}
+  :dependencies {:python ["llm>=0.12.0" "hy>=0.27.0"]
+                :babashka ["jet" "process"]}}}

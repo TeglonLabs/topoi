@@ -1,0 +1,33 @@
+# Core Concordia package
+gdm-concordia
+
+# LLM and ML Dependencies
+transformers
+langchain>=0.3.14
+langchain-community>=0.3.14
+google-generativeai
+openai
+
+# Data Processing
+pandas
+numpy
+protobuf
+
+# Cloud Services
+google-cloud-aiplatform
+google-cloud-storage
+boto3
+
+# Utilities
+absl-py
+ipython
+jinja2
+reactivex
+retry
+termcolor
+together
+typing-extensions
+
+# Optional Dependencies - Comment out if not needed
+# mistralai  # For Mistral AI models
+# ollama    # For local models

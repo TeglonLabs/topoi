@@ -1,0 +1,79 @@
+# VSCode Triplet View Template
+# This template helps understand and work with the three-way view of the workspace
+
+name: VSCode Triplet View
+description: Template for working with VSCode's three-way perspective
+temperature: 0.7
+model: gpt-4
+tags:
+  - vscode
+  - workspace
+  - navigation
+---
+
+# === Triplet Structure ===
+
+The VSCode environment presents three synchronized views:
+
+1. File Explorer View (Visible Files)
+   - Current files visible in the sidebar
+   - Represents immediate workspace context
+   - Example: @.continue/prompts/new-prompt-file.prompt
+
+2. Editor State (Open Tabs)
+   - All currently open editor tabs
+   - Represents active work context
+   - Example: @src/topos_mcp/server.py
+
+3. Working Directory (CWD)
+   - Files in current working directory
+   - Represents available resources
+   - Example: @justfile
+
+# === Navigation Context ===
+
+The environment provides these views through:
+- VSCode Visible Files: Current explorer view
+- VSCode Open Tabs: Active editor tabs
+- Current Working Directory: Available files
+
+# === Model Configuration ===
+
+Available models form another triplet:
+1. Claude 3 Sonnet (Anthropic) - Default
+2. Qwen QwQ 32B (Ollama) - Alternative
+3. GPT-4o (OpenAI) - Specialized
+
+# === Template Usage ===
+
+When working in this environment:
+1. Reference files using @ notation
+2. Consider all three views for context
+3. Navigate between views as needed
+
+Example task template:
+
+[Task description incorporating triplet views]
+
+Required context:
+- Visible files scope
+- Open editor tabs
+- Working directory state
+
+# === Original Template Reference ===
+# A prompt file consists of two parts:
+# 1. Everything above the "---" is YAML. Here you can set "temperature", "description", and other options
+# 2. Everything below the "---" is the prompt body
+
+# In the body, you can reference:
+# 1. Files, using either absolute or relative paths (based on the workspace root)
+  # @README.md
+  # @src/test/test.py
+# 2. URLs, for example
+  # 'https://example.com' 
+# 3. Context providers, for example
+  # @currentFile
+  # @os
+  # @repo-map
+
+# To learn more, see the full .prompt file reference: https://docs.continue.dev/features/prompt-files

@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "topos-session-mcp"
+version = "0.1.0"
+description = "MCP server for analyzing Cline/Claude Desktop sessions"
+requires-python = ">=3.11"
+dependencies = [
+    "duckdb==0.9.2",
+    "pandas>=2.0.0",
+    "tabulate>=0.9.0",
+    "pyarrow>=14.0.1",
+    "mcp>=0.1.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["topos_session_mcp"]

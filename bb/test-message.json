@@ -1,0 +1,12 @@
+{
+  "type": "transaction",
+  "payload": {
+    "id": "tx123",
+    "amount": 100.50,
+    "currency": "USD",
+    "metadata": {
+      "timestamp": "2024-01-24T10:30:00Z",
+      "source": "payment-service"
+    }
+  }
+}

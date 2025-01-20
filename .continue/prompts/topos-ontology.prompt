@@ -1,0 +1,81 @@
+# This is an example ".prompt" file
+# It is used to define and reuse prompts within Continue
+# Each .prompt file can be accessed by typing "@prompts" in the Chat input
+
+name: Topos Ontology
+description: Template for working with categorical and topos-theoretic structures
+temperature: 0.7
+model: gpt-4
+tags:
+  - topos
+  - category-theory
+  - ontology
+---
+
+# === Context References ===
+# Key project files for topos/category theory work:
+
+@src/topos-categories.ts        # Core categorical structures
+@src/topos-finance.ts          # Financial topos implementations
+@src/infinity_topos/core.clj   # Core topos functionality
+
+# === Ontological Framework ===
+
+The project implements several key categorical and topos-theoretic concepts:
+
+1. Category Structures
+- Objects and Morphisms
+- Functors between categories 
+- Presheaves (contravariant functors to Set)
+
+2. Topos Foundations
+- Elementary toposes
+- Sheaf conditions and gluing
+- Grothendieck topology
+
+3. Financial Applications
+- Investor/Investment categories
+- Morita equivalences
+- Classifier operations
+
+4. Core Capabilities
+- Safe extension of topos structures
+- Validation of capability extensions
+- Configuration management
+
+# === Template Usage ===
+
+When working with topos-theoretic structures:
+
+1. Define the relevant categories and functors
+2. Specify sheaf conditions if applicable
+3. Implement appropriate classifiers
+4. Validate structural properties
+
+Example task template:
+
+[Task description incorporating categorical/topos concepts]
+
+Required validations:
+- Category axioms
+- Functor properties
+- Sheaf conditions
+- Classifier behavior
+
+# === Original Template Reference ===
+# A prompt file consists of two parts:
+# 1. Everything above the "---" is YAML. Here you can set "temperature", "description", and other options
+# 2. Everything below the "---" is the prompt body
+
+# In the body, you can reference:
+# 1. Files, using either absolute or relative paths (based on the workspace root)
+  # @README.md
+  # @src/test/test.py
+# 2. URLs, for example
+  # 'https://example.com' 
+# 3. Context providers, for example
+  # @currentFile
+  # @os
+  # @repo-map
+
+# To learn more, see the full .prompt file reference: https://docs.continue.dev/features/prompt-files

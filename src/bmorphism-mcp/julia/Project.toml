@@ -1,0 +1,17 @@
+name = "BmorphismMcp"
+uuid = "c0d7a11e-5e74-4f1c-b825-f3b3e2c1f45a"
+authors = ["Topos MCP Contributors"]
+version = "0.1.0"
+
+[deps]
+ACSetInterface = "41f45b08-0a0a-4169-aad7-9cd7f6fb0274"
+Catlab = "134e5e36-593f-5add-ad60-77f754baafbe"
+LispSyntax = "b57e576a-9210-4103-9daf-d5cc7323c2e7"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+
+[compat]
+julia = "1.9"
+ACSetInterface = "1.1"
+Catlab = "0.16"
+LispSyntax = "0.2"
+JSON = "0.21"
