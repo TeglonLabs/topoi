@@ -40,6 +40,32 @@ flex: build
     @echo "Starting Flex..."
     cd src/flex && java -jar flex.jar
 
+# Database operations for hypergraph storage
+# Տվյալների բազայի գործողություններ հիպերգրաֆի պահպանման համար
+
+# Import Cline history
+# Ներմուծել Cline պատմությունը
+cline:
+    @chmod +x src/db_ops.py
+    @python3 src/db_ops.py import-cline test_cline_history.json
+
+# Import Claude history
+# Ներմուծել Claude պատմությունը
+claude:
+    @chmod +x src/db_ops.py
+    @python3 src/db_ops.py import-claude
+
+# Database operations
+db *ARGS='':
+    @chmod +x src/db_ops.py
+    @python3 src/db_ops.py {{ARGS}}
+
+# Grow the knowledge base by importing all histories
+# Աճեցնել գիտելիքների բազան՝ ներմուծելով բոլոր պատմությունները
+grow: cline claude
+    @echo "🌱 Growing knowledge base across DuckDB, Kuzu, and LanceDB..."
+    @python3 src/db_ops.py analyze
+
 # Armenian note:
 # Ճկուն ծրագրավորում սկսվում է այստեղից
 # (Flexible programming starts here)
