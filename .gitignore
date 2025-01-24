@@ -26,7 +26,7 @@ build/
 # IDEs and editors
 .idea/
 .vscode/
-*.swp
+*.code-workspace*.swp
 *.swo
 *~
 *.iml
@@ -60,3 +60,17 @@ Thumbs.db
 *.tmp
 *.swp
 
+
+# Clojure development tools
+.clj-kondo/
+.lsp/
+
+# Backup files
+backup.topoi.*.tar.gz
+
+# Cache directories
+.clj-kondo/**/*.transit.json
+.lsp/**/*.transit.json
+
+# External repositories
+sectorlisp/

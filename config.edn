@@ -1,0 +1,33 @@
+{;; Default topos location
+ :topos-root "~/topos"
+ 
+ ;; Installation paths
+ :paths {:babashka {:bin "~/.babashka/bin"
+                    :config "~/.config/babashka"}
+         :flox {:bin "~/.flox/bin"
+                :config "~/.config/flox"}
+         :mcp {:servers "~/.mcp/servers"
+               :config "~/.mcp/config"}}
+ 
+ ;; Bootstrap preferences
+ :bootstrap {:preferred-method nil  ; nil means random choice between :flox and :babashka
+            :fallback-method :babashka}
+ 
+ ;; Server priorities (ordered list for progressive installation)
+ :server-priorities ["coin-flip"
+                    "say"
+                    "qemu"
+                    "babashka"
+                    "github"
+                    "anti-bullshit"
+                    "manifold"]
+ 
+ ;; Working memory persistence
+ :working-memory {:location "~/.topos/memory"
+                 :backup-interval 3600  ; in seconds
+                 :max-backups 5}
+ 
+ ;; Development settings
+ :development {:enable-debug false
+              :log-level :info
+              :hot-reload true}}

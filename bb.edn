@@ -1,0 +1,22 @@
+{:paths ["src"]
+ :deps {org.babashka/cli {:mvn/version "0.7.53"}
+        cheshire/cheshire {:mvn/version "5.11.0"}
+        babashka/process {:mvn/version "0.5.21"}
+        babashka/fs {:mvn/version "0.4.19"}
+        org.babashka/http-client {:mvn/version "0.4.15"}}
+ 
+ :tasks
+ {:requires ([babashka.cli :as cli])
+  :init (do
+          (defn run [opts]
+            (load-file "src/topos_mcp/core.clj")
+            ((resolve 'topos-mcp.core/run) opts)))
+
+  run {:doc "Run topos-mcp"
+       :task (run {})}
+
+  server {:doc "Start MCP server"
+          :task (run {:mode "server"})}
+
+  client {:doc "Start MCP client"
+          :task (run {:mode "client"})}}}

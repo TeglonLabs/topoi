@@ -1,0 +1,85 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "claude-dev.mcp.settings": {
+            "mcpServers": {
+                "anti-bullshit": {
+                    "command": "node",
+                    "args": ["/Users/barton/Documents/Cline/MCP/anti-bullshit/build/index.js"],
+                    "disabled": false,
+                    "autoApprove": []
+                },
+                "github": {
+                    "command": "npx",
+                    "args": ["/Users/barton/Documents/Cline/MCP/github/dist/index.js"],
+                    "disabled": false,
+                    "autoApprove": []
+                },
+                "youtube-transcript": {
+                    "command": "npx",
+                    "args": ["-y", "/Users/barton/Documents/Cline/MCP/youtube-transcript/dist/index.js"],
+                    "disabled": false,
+                    "autoApprove": []
+                },
+                "manifold": {
+                    "command": "node", 
+                    "args": ["/Users/barton/Documents/Cline/MCP/manifold/build/index.js"],
+                    "disabled": false,
+                    "autoApprove": []
+                },
+                "babashka": {
+                    "command": "node",
+                    "args": ["/Users/barton/Documents/Cline/MCP/babashka/build/index.js"],
+                    "disabled": false,
+                    "autoApprove": []
+                },
+                "exa": {
+                    "command": "npx",
+                    "args": ["/Users/barton/Documents/Cline/MCP/exa/build/index.js"],
+                    "disabled": false,
+                    "autoApprove": []
+                },
+                "metaphor": {
+                    "command": "npx",
+                    "args": ["/Users/barton/Documents/Cline/MCP/metaphor/build/index.js"],
+                    "disabled": false,
+                    "autoApprove": []
+                },
+                "marginalia": {
+                    "command": "node",
+                    "args": ["/Users/barton/Documents/Cline/MCP/marginalia/build/index.js"],
+                    "disabled": false,
+                    "autoApprove": []
+                },
+                "say": {
+                    "command": "node",
+                    "args": ["/Users/barton/Documents/Cline/MCP/say/build/index.js"],
+                    "disabled": false,
+                    "autoApprove": []
+                },
+                "modal-mcp": {
+                    "command": "/Users/barton/Documents/Cline/MCP/modal-mcp-server/.venv/bin/python",
+                    "args": ["/Users/barton/Documents/Cline/MCP/modal-mcp-server/src/modal_mcp_server/server.py"],
+                    "disabled": false,
+                    "autoApprove": []
+                },
+                "penrose": {
+                    "command": "node",
+                    "args": ["/Users/barton/Documents/Cline/MCP/penrose/build/index.js"],
+                    "disabled": false,
+                    "autoApprove": []
+                }
+            }
+        },
+        "extensions": {
+            "recommendations": [
+                "saoudrizwan.claude-dev",
+                "ms-vsliveshare.vsliveshare"
+            ]
+        }
+    }
+}

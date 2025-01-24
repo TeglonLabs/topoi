@@ -1,0 +1,86 @@
+{:pod {:name "pod-babashka-mcp"
+       :version "0.1.0"
+       :description "Babashka pod for MCP server interactions"
+       :maintainers [{:name "Infinity Topos Team"
+                     :email "team@infinity-topos.org"}]
+       :license "EPL-2.0"
+       
+       ;; Default connection settings
+       :defaults {:timeout 30000
+                 :retry {:max-attempts 3
+                        :backoff-ms 1000}
+                 :transport :stdio}
+       
+       ;; Resource configuration
+       :resources {:cache-ttl-ms 60000
+                  :max-subscriptions 100
+                  :templates [{:uri-template "mcp://{server}/{resource}"
+                             :description "Standard MCP resource URI format"}]}
+       
+       ;; Tool configuration  
+       :tools {:max-concurrent 10
+              :default-timeout-ms 5000
+              :schemas {:path "resources/schemas"
+                       :validate true}}}
+
+ ;; MCP Server configurations
+ :mcp-servers
+ {"example-server"
+  {:command "bb"
+   :args ["example_mcp_server.clj"]
+   :env {"DEBUG" #env "DEBUG"
+         "LOG_LEVEL" "INFO"}
+   :disabled false
+   :auto-approve []
+   :tools [{:name "example_tool"
+            :description "Example tool implementation"
+            :input-schema {:type "object"
+                          :properties {"arg" {"type" "string"}}
+                          :required ["arg"]}}]}
+
+  "stdio-server"
+  {:command "python"
+   :args ["server.py"]
+   :env {"PYTHONPATH" "src"
+         "LOG_LEVEL" #env "LOG_LEVEL"}
+   :disabled false
+   :auto-approve []
+   :resources [{:uri "stdio://status"
+                :name "Server Status"
+                :mime-type "application/json"}]}
+
+  "websocket-server"
+  {:command "node"
+   :args ["dist/index.js"]
+   :env {"PORT" #env "WS_PORT"
+         "HOST" #env "WS_HOST"}
+   :disabled false
+   :auto-approve []
+   :tools [{:name "ws_tool"
+            :description "WebSocket-based tool"
+            :async true}]}
+
+  "sse-server"
+  {:command "go"
+   :args ["run" "main.go"]
+   :env {"STREAM_TIMEOUT" #env "SSE_TIMEOUT"}
+   :disabled false
+   :auto-approve []
+   :resources [{:uri "sse://events"
+                :name "Server Events"
+                :mime-type "text/event-stream"}]}}
+
+ ;; Development settings
+ :dev {:mock-servers true
+       :log-level :debug
+       :reload-on-change true}
+ 
+ ;; Production settings
+ :prod {:mock-servers false
+        :log-level :info
+        :reload-on-change false}
+ 
+ ;; Testing configuration
+ :test {:mock-servers true
+        :log-level :debug
+        :test-resources "test/resources"}}

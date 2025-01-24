@@ -1,0 +1,50 @@
+{:paths ["src" "test"]
+ :deps {org.babashka/spec.alpha {:git/url "https://github.com/babashka/spec.alpha"
+                                :git/sha "1a841c4cc1d4f6dab7505a98ed2d532dd9d56b78"}
+        babashka/fs {:mvn/version "0.4.19"}
+        babashka/process {:mvn/version "0.5.21"}
+        cheshire/cheshire {:mvn/version "5.11.0"}}
+ 
+ :tasks
+ {:requires ([babashka.fs :as fs]
+            [babashka.process :refer [shell]])
+  :init (do
+          (def version "0.1.0")
+          (def target-dir "target"))
+  
+  clean {:doc "Clean target directory"
+         :task (do
+                 (fs/delete-tree target-dir)
+                 (println "Cleaned target directory"))}
+  
+  test {:doc "Run tests"
+        :extra-paths ["test"]
+        :extra-deps {io.github.cognitect-labs/test-runner 
+                    {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                     :sha "705ad25bbf0228b1c38d0244a36001c2987d7337"}}
+        :requires ([cognitect.test-runner :as test-runner])
+        :task (test-runner/test {:dirs ["test"]})}
+  
+  compile {:doc "Compile Go code and copy Clojure files"
+          :depends [clean]
+          :task (do
+                  (shell "go build -o target/pod-babashka-mcp src/mcp/pod.go")
+                  (fs/create-dirs "target/classes/pod/babashka")
+                  (fs/copy-tree "src/bb/pod/babashka" "target/classes/pod/babashka"))}
+  
+  package {:doc "Package pod for distribution"
+          :depends [compile]
+          :task (do
+                  (let [pkg-dir (str target-dir "/pod-babashka-mcp-" version)]
+                    (fs/create-dirs pkg-dir)
+                    (fs/copy "target/pod-babashka-mcp" pkg-dir)
+                    (fs/copy-tree "target/classes" pkg-dir)
+                    (fs/copy "README.md" pkg-dir)
+                    (fs/copy "LICENSE" pkg-dir)))}
+  
+  install {:doc "Install pod locally"
+          :depends [compile]
+          :task (do
+                  (let [pod-dir (str (fs/home) "/.babashka/pods")]
+                    (fs/create-dirs pod-dir)
+                    (fs/copy "target/pod-babashka-mcp" pod-dir)))}}}
